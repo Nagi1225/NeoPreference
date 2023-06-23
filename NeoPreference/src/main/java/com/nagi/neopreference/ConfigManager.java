@@ -9,8 +9,6 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import com.blankj.utilcode.util.Utils;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +28,7 @@ public class ConfigManager {
 
     private final HashMap<Class<? extends Config>, Config> preferenceMap = new HashMap<>();
 
-    private final Map<String, WeakHashMap<Listener, Listener>> listenerMap = new ConcurrentHashMap<>();
+    private final Map<String, HashMap<Listener, Listener>> listenerMap = new ConcurrentHashMap<>();
 
     public <P extends Config> P getConfig(Class<P> pClass) {
         return getConfig(pClass, Context.MODE_PRIVATE);
@@ -45,7 +43,7 @@ public class ConfigManager {
                     SharedPreferences preferences = application.getSharedPreferences(prefName, mode);
                     Map<String, PropertyFactory<?>> map = Arrays.stream(pClass.getMethods())
                             .filter(method -> method.getReturnType().equals(Property.class))
-                            .map(method -> new Pair<>(method.getName(), LazyPropertyFactory.get(method)))
+                            .map(method -> new Pair<>(method.getName(), LazyPropertyFactory.get(prefName, method)))
                             .collect(Collectors.toMap(pair -> pair.first, pair -> pair.second));
                     P preference = (P) Proxy.newProxyInstance(pClass.getClassLoader(), new Class[]{pClass}, (proxy, method, args) -> {
                         if (method.getReturnType().equals(Property.class)) {
@@ -63,17 +61,14 @@ public class ConfigManager {
                 });
     }
 
-    public void addListener(String preferenceName, WeakReference<Listener> listenerRef) {
-        Optional.ofNullable(listenerRef).map(Reference::get)
-                .ifPresent(listener -> {
-                    WeakHashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(WeakHashMap::new);
-                    map.put(listener, listener);
-                    listenerMap.put(preferenceName, map);
-                });
+    public void addListener(String preferenceName, Listener listener) {
+        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
+        map.put(listener, listener);
+        listenerMap.put(preferenceName, map);
     }
 
     public void addListener(LifecycleOwner lifecycleOwner, String preferenceName, Listener listener) {
-        WeakHashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(WeakHashMap::new);
+        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
         map.put(listener, listener);
         listenerMap.put(preferenceName, map);
         lifecycleOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
@@ -85,7 +80,25 @@ public class ConfigManager {
         });
     }
 
-    void notifyAllListener(String key, Object value) {
+    public void removeListener(String preferenceName, Listener listener) {
+        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
+        map.remove(listener);
+        if (map.isEmpty()) {
+            listenerMap.remove(preferenceName);
+        }
+    }
+
+    public void removePreferenceListeners(String preferenceName) {
+        listenerMap.remove(preferenceName);
+    }
+
+    void notifyPreferenceListeners(String preferenceName, String key, Object value) {
+        Optional.ofNullable(listenerMap.get(preferenceName))
+                .ifPresent(map -> map.values().stream()
+                        .forEach(listener -> listener.onPropertyChange(key, value)));
+    }
+
+    void notifyAllListeners(String key, Object value) {
         listenerMap.values().stream()
                 .forEach(map -> map.values().stream()
                         .forEach(listener -> listener.onPropertyChange(key, value)));
