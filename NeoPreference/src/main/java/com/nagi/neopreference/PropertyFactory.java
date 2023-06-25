@@ -3,7 +3,6 @@ package com.nagi.neopreference;
 import android.content.SharedPreferences;
 import androidx.annotation.Keep;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
@@ -14,9 +13,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class PropertyFactory {
-    private final static Map<Class<?>, Class<? extends Annotation>> ANNOTATION_CLASS_MAP = Config.ITEM_ANNOTATION_MAP
-            .entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-
     static Lazy<Property<?>> get(String preferenceName, SharedPreferences preferences, Method method) {
         if (method.getParameterTypes().length == 0) {
             Type returnType = method.getGenericReturnType();
@@ -26,7 +22,6 @@ public class PropertyFactory {
                     Type valueType = types[0];
                     String defaultKey = method.getName();
                     checkAnnotation(method, valueType, method.getAnnotations());
-//                    extractAnnotation(method, ANNOTATION_CLASS_MAP.get(valueType));TODO not use Matcher
                     return Lazy.from(Matcher.matchFrom(valueType)
                             .valueOf(Integer.class, intClass -> (Supplier<Property<?>>)
                                     () -> new Property.IntProperty(defaultKey, extractAnnotation(method, Config.IntItem.class), preferenceName, preferences))
@@ -38,8 +33,6 @@ public class PropertyFactory {
                                     () -> new Property.BooleanProperty(defaultKey, extractAnnotation(method, Config.BooleanItem.class), preferenceName, preferences))
                             .valueOf(Long.class, longClass ->
                                     () -> new Property.LongProperty(defaultKey, extractAnnotation(method, Config.LongItem.class), preferenceName, preferences))
-                            .valueOf(Serializable.class, serializableClass ->
-                                    () -> new Property.SerializableProperty<>(defaultKey, extractAnnotation(method, Config.SerializableItem.class), preferenceName, preferences))
                             .typeOf(ParameterizedType.class, parameterizedType -> {
                                 Type rawType = ((ParameterizedType) valueType).getRawType();
                                 Type[] actualTypeArguments = ((ParameterizedType) valueType).getActualTypeArguments();
@@ -49,8 +42,6 @@ public class PropertyFactory {
                                     throw new RuntimeException("error parameterizedType:" + rawType + " - " + Arrays.toString(actualTypeArguments));
                                 }
                             })
-                            .caseOf(type -> type instanceof Class && Serializable.class.isAssignableFrom((Class<?>) type), type ->
-                                    () -> new Property.SerializableProperty<>(defaultKey, extractAnnotation(method, Config.SerializableItem.class), preferenceName, preferences))
                             .orElse((Supplier<Supplier<Property<?>>>) () -> {
                                 throw new RuntimeException("error returnType:" + valueType);
                             }));
@@ -123,9 +114,6 @@ public class PropertyFactory {
 
         @Config.StringItem
         Property<String> stringProperty();
-
-        @Config.SerializableItem
-        Property<Serializable> serializableProperty();
 
         @Config.StringSetItem
         Property<Set<String>> stringSetProperty();

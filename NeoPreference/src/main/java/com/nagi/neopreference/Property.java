@@ -2,14 +2,10 @@ package com.nagi.neopreference;
 
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import java.io.*;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -375,85 +371,6 @@ public abstract class Property<T> {
                                     .orElseThrow(() -> new IllegalArgumentException("string set contains invalid element:" +
                                             value.stream().reduce((s, s2) -> s + ", " + s2).orElse(""))))
                     .apply();
-        }
-    }
-
-    static class SerializableProperty<S extends Serializable> extends Property<S> {
-        private final Config.SerializableItem annotation;
-
-        SerializableProperty(String key, Config.SerializableItem annotation, String preferenceName, SharedPreferences preferences) {
-            super(ensureKey(annotation.key(), key), preferenceName, preferences);
-            this.annotation = annotation;
-        }
-
-        @Override
-        String getValueString() {
-            return isEmpty() ? "empty serializable" : String.valueOf(get());
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-
-        @Override
-        public S get(S defValue) {
-            if (getPreferences().contains(getKey())) {
-                String objectVal = getPreferences().getString(getKey(), null);
-                byte[] buffer = android.util.Base64.decode(objectVal, Base64.DEFAULT);
-                ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
-                ObjectInputStream ois = null;
-                try {
-                    ois = new ObjectInputStream(bais);
-                    return (S) ois.readObject();
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        bais.close();
-                        if (ois != null) {
-                            ois.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return defValue;
-        }
-
-        @Override
-        public S get() {
-            return get(null);
-        }
-
-        @Override
-        public void set(S value) {
-            if (!annotation.type().isInstance(value)) {
-                throw new IllegalArgumentException(String.format("value is wrong type, require %s, provide %s", annotation.type().getCanonicalName(), value.getClass().getCanonicalName()));
-            }
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream out = null;
-            try {
-                out = new ObjectOutputStream(baos);
-                out.writeObject(value);
-                String objectVal = new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));
-                SharedPreferences.Editor editor = getPreferences().edit();
-                editor.putString(getKey(), objectVal);
-                editor.apply();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    baos.close();
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

@@ -3,7 +3,6 @@ package com.nagi.neopreference;
 import android.util.Pair;
 import androidx.annotation.Keep;
 
-import java.io.Serializable;
 import java.lang.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,8 +19,7 @@ public interface Config {
                     new Pair<>(BooleanItem.class, Boolean.class),
                     new Pair<>(FloatItem.class, Float.class),
                     new Pair<>(LongItem.class, Long.class),
-                    new Pair<>(StringSetItem.class, Set.class),
-                    new Pair<>(SerializableItem.class, Serializable.class))
+                    new Pair<>(StringSetItem.class, Set.class))
             .collect(Collectors.toMap(p -> p.first, p -> p.second)));
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -114,17 +112,6 @@ public interface Config {
         String key() default "";
 
         String[] valueOf() default {};
-
-        String description() default "";
-    }
-
-    @Target(value = ElementType.METHOD)
-    @Retention(value = RetentionPolicy.RUNTIME)
-    @Inherited
-    @interface SerializableItem {
-        String key() default "";
-
-        Class<?> type() default Object.class;
 
         String description() default "";
     }
