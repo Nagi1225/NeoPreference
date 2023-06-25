@@ -1,30 +1,28 @@
 package com.nagi.neopreference;
 
+import android.util.Pair;
 import androidx.annotation.Keep;
 
+import java.io.Serializable;
 import java.lang.annotation.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Keep
 public interface Config {
 
     List<Property<?>> getAll();
 
-    Set<Class<? extends Annotation>> ITEM_ANNOTATION_MAP = Collections
-            .unmodifiableSet(Arrays
-                    .asList(StringItem.class,
-                            IntItem.class,
-                            BooleanItem.class,
-                            FloatItem.class,
-                            LongItem.class,
-                            StringSetItem.class,
-                            SerializableItem.class)
-                    .stream()
-                    .collect(Collectors.toSet()));
+    Map<Class<? extends Annotation>, Class<?>> ITEM_ANNOTATION_MAP = Collections.unmodifiableMap(Stream
+            .of(new Pair<>(StringItem.class, String.class),
+                    new Pair<>(IntItem.class, Integer.class),
+                    new Pair<>(BooleanItem.class, Boolean.class),
+                    new Pair<>(FloatItem.class, Float.class),
+                    new Pair<>(LongItem.class, Long.class),
+                    new Pair<>(StringSetItem.class, Set.class),
+                    new Pair<>(SerializableItem.class, Serializable.class))
+            .collect(Collectors.toMap(p -> p.first, p -> p.second)));
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
