@@ -9,10 +9,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class PropertyFactory {
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     static Lazy<Property<?>> get(String preferenceName, SharedPreferences preferences, Method method) {
         if (method.getParameterTypes().length == 0) {
             Type returnType = method.getGenericReturnType();
@@ -22,29 +23,12 @@ public class PropertyFactory {
                     Type valueType = types[0];
                     String defaultKey = method.getName();
                     checkAnnotation(method, valueType, method.getAnnotations());
-                    return Lazy.from(Matcher.matchFrom(valueType)
-                            .valueOf(Integer.class, intClass -> (Supplier<Property<?>>)
-                                    () -> new Property.IntProperty(defaultKey, extractAnnotation(method, Config.IntItem.class), preferenceName, preferences))
-                            .valueOf(Float.class, floatClass ->
-                                    () -> new Property.FloatProperty(defaultKey, extractAnnotation(method, Config.FloatItem.class), preferenceName, preferences))
-                            .valueOf(String.class, stringClass ->
-                                    () -> new Property.StringProperty(defaultKey, extractAnnotation(method, Config.StringItem.class), preferenceName, preferences))
-                            .valueOf(Boolean.class, booleanClass ->
-                                    () -> new Property.BooleanProperty(defaultKey, extractAnnotation(method, Config.BooleanItem.class), preferenceName, preferences))
-                            .valueOf(Long.class, longClass ->
-                                    () -> new Property.LongProperty(defaultKey, extractAnnotation(method, Config.LongItem.class), preferenceName, preferences))
-                            .typeOf(ParameterizedType.class, parameterizedType -> {
-                                Type rawType = ((ParameterizedType) valueType).getRawType();
-                                Type[] actualTypeArguments = ((ParameterizedType) valueType).getActualTypeArguments();
-                                if (Objects.equals(rawType, Set.class) && Objects.equals(actualTypeArguments[0], String.class)) {
-                                    return () -> new Property.StringSetProperty(defaultKey, extractAnnotation(method, Config.StringSetItem.class), preferenceName, preferences);
-                                } else {
-                                    throw new RuntimeException("error parameterizedType:" + rawType + " - " + Arrays.toString(actualTypeArguments));
-                                }
-                            })
-                            .orElse((Supplier<Supplier<Property<?>>>) () -> {
-                                throw new RuntimeException("error returnType:" + valueType);
-                            }));
+                    TypeAdapter adapter = Adapters.getAdapterForType(valueType);
+                    if (adapter == null) {
+                        throw new RuntimeException("error returnType:" + valueType);
+                    } else {
+                        return Lazy.from(() -> adapter.createProperty(defaultKey, extractAnnotation(method, adapter.getTypeAnnotationClass()), preferenceName, preferences));
+                    }
                 } else {
                     throw new IllegalStateException("type arguments length != 1");
                 }

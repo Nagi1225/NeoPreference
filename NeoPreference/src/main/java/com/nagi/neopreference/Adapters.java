@@ -3,19 +3,69 @@ package com.nagi.neopreference;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
 class Adapters {
+    @SuppressWarnings("rawtypes")
+    private static final Map<Type, TypeAdapter> adapterMap = new HashMap<>();
+
+    static {
+        registerAdapters(Arrays.asList(
+                new IntegerTypeAdapter(),
+                new BooleanTypeAdapter(),
+                new LongTypeAdapter(),
+                new FloatTypeAdapter(),
+                new StringTypeAdapter(),
+                new StringSetTypeAdapter()));
+    }
+
     private Adapters() {
 
+    }
+
+    @SuppressWarnings("rawtypes")
+    static void registerAdapters(List<TypeAdapter> adapterList) {
+        for (TypeAdapter adapter : adapterList) {
+            Type type = adapter.getClass().getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+                if (actualTypeArguments.length != 2) {
+                    throw new IllegalArgumentException(String.format("Adapter[%s] must have 2 type arguments, like TypeAdapter<Config.IntItem, Integer>",
+                            adapter.getClass().getCanonicalName()));
+                } else {
+                    Type annoType = actualTypeArguments[0];
+                    Type valueType = actualTypeArguments[1];
+                    if (annoType instanceof Class && Annotation.class.isAssignableFrom((Class<?>) annoType)) {
+                        adapterMap.put(valueType, adapter);
+                    } else {
+                        throw new IllegalArgumentException("Annotation Type Argument is not valid:" + annoType);
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException(String.format("Adapter[%s] must contains type arguments, like TypeAdapter<Config.IntItem, Integer>",
+                        adapter.getClass().getCanonicalName()));
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    static TypeAdapter getAdapterForType(Type type) {
+        return adapterMap.get(type);
+    }
+
+    private static String ensureKey(String key, String defaultKey) {
+        return TextUtils.isEmpty(key) ? defaultKey : key;
     }
 
     static class IntegerTypeAdapter extends TypeAdapter<Config.IntItem, Integer> {
         @Override
         public Property<Integer> createProperty(String key, Config.IntItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<Integer> valueEnumSet = Arrays.stream(annotation.valueOf()).boxed().collect(Collectors.toSet());
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return isEmpty() ? "empty int" : String.valueOf(get());
@@ -61,7 +111,7 @@ class Adapters {
     static class BooleanTypeAdapter extends TypeAdapter<Config.BooleanItem, Boolean> {
         @Override
         public Property<Boolean> createProperty(String key, Config.BooleanItem annotation, String preferenceName, SharedPreferences preferences) {
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return isEmpty() ? "empty boolean" : String.valueOf(get());
@@ -96,7 +146,7 @@ class Adapters {
         @Override
         public Property<Long> createProperty(String key, Config.LongItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<Long> valueEnumSet = Arrays.stream(annotation.valueOf()).boxed().collect(Collectors.toSet());
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return isEmpty() ? "empty long" : String.valueOf(get());
@@ -148,7 +198,7 @@ class Adapters {
             for (Float v : annotation.valueOf()) {
                 valueEnumSet.add(v);
             }
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return isEmpty() ? "empty float" : String.valueOf(get());
@@ -196,7 +246,7 @@ class Adapters {
         @Override
         public Property<String> createProperty(String key, Config.StringItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<String> valueEnumSet = Arrays.stream(annotation.valueOf()).collect(Collectors.toSet());
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return isEmpty() ? "empty string" : String.valueOf(get());
@@ -247,7 +297,7 @@ class Adapters {
             if (valueEnumSet.size() != annotation.valueOf().length) {
                 throw new IllegalArgumentException("StringSetItem annotation contains duplication element:" + Arrays.toString(annotation.valueOf()));
             }
-            return new Property<>(key, preferenceName, preferences) {
+            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 String getValueString() {
                     return get().stream().reduce((s, s2) -> s + ", " + s2).orElse("empty str");

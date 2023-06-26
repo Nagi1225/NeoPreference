@@ -18,6 +18,14 @@ public class ConfigManager {
 
     private static final ConfigManager sInstance = new ConfigManager();
 
+    public static void init(@NonNull List<Class<?>> configClassList) {
+        init(Collections.emptyList(), configClassList);
+    }
+
+    public static void init(@NonNull List<TypeAdapter> adapterList, @NonNull List<Class<?>> configClassList) {
+        Adapters.registerAdapters(adapterList);
+    }
+
     private ConfigManager() {
 
     }
