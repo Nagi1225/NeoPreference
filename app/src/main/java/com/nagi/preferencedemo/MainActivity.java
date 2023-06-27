@@ -41,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         config.intProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.floatProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.longProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.boolProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.stringProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.stringSetProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
+        config.floatProperty().addListener(this, newValue -> Log.i("SPECTRE", "float property updated:" + newValue + "\n"));
+        config.longProperty().addListener(this, newValue -> Log.i("SPECTRE", "long property updated:" + newValue + "\n"));
+        config.boolProperty().addListener(this, newValue -> Log.i("SPECTRE", "bool property updated:" + newValue + "\n"));
+        config.stringProperty().addListener(this, newValue -> Log.i("SPECTRE", "string property updated:" + newValue + "\n"));
+        config.stringSetProperty().addListener(this, newValue -> Log.i("SPECTRE", "string set property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
     }
 }

@@ -62,9 +62,9 @@ class Adapters {
         @Override
         public Property<Integer> createProperty(String key, Config.IntItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<Integer> valueEnumSet = Arrays.stream(annotation.valueOf()).boxed().collect(Collectors.toSet());
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return isEmpty() ? "empty int" : String.valueOf(get());
                 }
 
@@ -88,7 +88,6 @@ class Adapters {
                     if (!valueEnumSet.isEmpty()) {
                         if (valueEnumSet.contains(value)) {
                             getPreferences().edit().putInt(getKey(), value).apply();
-                            notifyAllListeners(value);
                         } else {
                             throw new IllegalArgumentException("value is invalid, must in values " + Arrays.toString(valueEnumSet.toArray()));
                         }
@@ -97,7 +96,6 @@ class Adapters {
                             throw new IllegalArgumentException("value is invalid, must between " + annotation.to() + " and " + annotation.start());
                         } else {
                             getPreferences().edit().putInt(getKey(), value).apply();
-                            notifyAllListeners(value);
                         }
                     }
                 }
@@ -108,9 +106,9 @@ class Adapters {
     static class BooleanTypeAdapter extends TypeAdapter<Config.BooleanItem, Boolean> {
         @Override
         public Property<Boolean> createProperty(String key, Config.BooleanItem annotation, String preferenceName, SharedPreferences preferences) {
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return isEmpty() ? "empty boolean" : String.valueOf(get());
                 }
 
@@ -132,7 +130,6 @@ class Adapters {
                 @Override
                 public void set(Boolean value) {
                     getPreferences().edit().putBoolean(getKey(), value).apply();
-                    notifyAllListeners(value);
                 }
             };
         }
@@ -143,9 +140,9 @@ class Adapters {
         @Override
         public Property<Long> createProperty(String key, Config.LongItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<Long> valueEnumSet = Arrays.stream(annotation.valueOf()).boxed().collect(Collectors.toSet());
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return isEmpty() ? "empty long" : String.valueOf(get());
                 }
 
@@ -169,7 +166,6 @@ class Adapters {
                     if (!valueEnumSet.isEmpty()) {
                         if (valueEnumSet.contains(value)) {
                             getPreferences().edit().putLong(getKey(), value).apply();
-                            notifyAllListeners(value);
                         } else {
                             throw new IllegalArgumentException("value is invalid, must in values " + Arrays.toString(valueEnumSet.toArray()));
                         }
@@ -178,7 +174,6 @@ class Adapters {
                             throw new IllegalArgumentException("value is invalid, must between " + annotation.start() + " and " + annotation.to());
                         } else {
                             getPreferences().edit().putLong(getKey(), value).apply();
-                            notifyAllListeners(value);
                         }
                     }
 
@@ -195,9 +190,9 @@ class Adapters {
             for (Float v : annotation.valueOf()) {
                 valueEnumSet.add(v);
             }
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return isEmpty() ? "empty float" : String.valueOf(get());
                 }
 
@@ -221,7 +216,6 @@ class Adapters {
                     if (!valueEnumSet.isEmpty()) {
                         if (valueEnumSet.contains(value)) {
                             getPreferences().edit().putFloat(getKey(), value).apply();
-                            notifyAllListeners(value);
                         } else {
                             throw new IllegalArgumentException("value is invalid, must in values " + Arrays.toString(valueEnumSet.toArray()));
                         }
@@ -230,7 +224,6 @@ class Adapters {
                             throw new IllegalArgumentException("value is invalid, must between " + annotation.start() + " and " + annotation.to() + ", current is " + value);
                         } else {
                             getPreferences().edit().putFloat(getKey(), value).apply();
-                            notifyAllListeners(value);
                         }
                     }
                 }
@@ -243,9 +236,9 @@ class Adapters {
         @Override
         public Property<String> createProperty(String key, Config.StringItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<String> valueEnumSet = Arrays.stream(annotation.valueOf()).collect(Collectors.toSet());
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return isEmpty() ? "empty string" : String.valueOf(get());
                 }
 
@@ -269,7 +262,6 @@ class Adapters {
                     if (!valueEnumSet.isEmpty()) {
                         if (valueEnumSet.contains(value)) {
                             getPreferences().edit().putString(getKey(), value).apply();
-                            notifyAllListeners(value);
                         } else {
                             throw new IllegalArgumentException("value is invalid, must in values " + Arrays.toString(valueEnumSet.toArray()));
                         }
@@ -278,7 +270,6 @@ class Adapters {
                             throw new IllegalArgumentException("value is not support empty");
                         } else {
                             getPreferences().edit().putString(getKey(), value).apply();
-                            notifyAllListeners(value);
                         }
                     }
                 }
@@ -294,9 +285,9 @@ class Adapters {
             if (valueEnumSet.size() != annotation.valueOf().length) {
                 throw new IllegalArgumentException("StringSetItem annotation contains duplication element:" + Arrays.toString(annotation.valueOf()));
             }
-            return new Property<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
+            return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
-                String getValueString() {
+                public String getValueString() {
                     return get().stream().reduce((s, s2) -> s + ", " + s2).orElse("empty str");
                 }
 
