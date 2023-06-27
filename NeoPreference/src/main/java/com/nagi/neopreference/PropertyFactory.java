@@ -27,7 +27,8 @@ public class PropertyFactory {
                     if (adapter == null) {
                         throw new RuntimeException("error returnType:" + valueType);
                     } else {
-                        return Lazy.from(() -> adapter.createProperty(defaultKey, extractAnnotation(method, adapter.getTypeAnnotationClass()), preferenceName, preferences));
+                        return Lazy.from(() -> new PropertyWrapper<Object>(
+                                        adapter.createProperty(defaultKey, extractAnnotation(method, adapter.getTypeAnnotationClass()), preferenceName, preferences)));
                     }
                 } else {
                     throw new IllegalStateException("type arguments length != 1");

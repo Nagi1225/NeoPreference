@@ -18,12 +18,15 @@ public class ConfigManager {
 
     private static final ConfigManager sInstance = new ConfigManager();
 
-    public static void init(@NonNull List<Class<?>> configClassList) {
+    public static void init(@NonNull List<Class<? extends Config>> configClassList) {
         init(Collections.emptyList(), configClassList);
     }
 
-    public static void init(@NonNull List<TypeAdapter> adapterList, @NonNull List<Class<?>> configClassList) {
+    public static void init(@NonNull List<TypeAdapter> adapterList, @NonNull List<Class<? extends Config>> configClassList) {
         Adapters.registerAdapters(adapterList);
+        for(Class<? extends Config> clazz : configClassList){
+            getInstance().getConfig(clazz).getAll();//TODO need optimize
+        }
     }
 
     private ConfigManager() {
