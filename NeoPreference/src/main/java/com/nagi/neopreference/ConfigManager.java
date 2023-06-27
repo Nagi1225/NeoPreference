@@ -18,12 +18,8 @@ public class ConfigManager {
 
     private static final ConfigManager sInstance = new ConfigManager();
 
-    public static void init(@NonNull List<Class<?>> configClassList) {
-        init(Collections.emptyList(), configClassList);
-    }
-
-    public static void init(@NonNull List<TypeAdapter> adapterList, @NonNull List<Class<?>> configClassList) {
-        Adapters.registerAdapters(adapterList);
+    public static void registerAdapter(TypeAdapter<?, ?> adapter) {
+        Adapters.registerAdapter(adapter);
     }
 
     private ConfigManager() {
@@ -36,7 +32,7 @@ public class ConfigManager {
 
     private final HashMap<Class<? extends Config>, Config> preferenceMap = new HashMap<>();
 
-    private final Map<String, HashMap<Listener, Listener>> listenerMap = new ConcurrentHashMap<>();
+    private final Map<String, Set<Listener>> listenerMap = new ConcurrentHashMap<>();
 
     public <P extends Config> P getConfig(Class<P> pClass) {
         return getConfig(pClass, Context.MODE_PRIVATE);
@@ -70,46 +66,42 @@ public class ConfigManager {
                 });
     }
 
-    public void addListener(String preferenceName, Listener listener) {
-        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
-        map.put(listener, listener);
+    public synchronized void addListener(String preferenceName, Listener listener) {
+        Set<Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashSet::new);
+        map.add(listener);
         listenerMap.put(preferenceName, map);
     }
 
-    public void addListener(LifecycleOwner lifecycleOwner, String preferenceName, Listener listener) {
-        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
-        map.put(listener, listener);
+    public synchronized void addListener(LifecycleOwner lifecycleOwner, String preferenceName, Listener listener) {
+        Set<Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashSet::new);
+        map.add(listener);
         listenerMap.put(preferenceName, map);
         lifecycleOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override
             public void onDestroy(@NonNull LifecycleOwner owner) {
                 DefaultLifecycleObserver.super.onDestroy(owner);
-                map.remove(listener);
+                synchronized (ConfigManager.this) {
+                    map.remove(listener);
+                }
             }
         });
     }
 
-    public void removeListener(String preferenceName, Listener listener) {
-        HashMap<Listener, Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashMap::new);
+    public synchronized void removeListener(String preferenceName, Listener listener) {
+        Set<Listener> map = Optional.ofNullable(listenerMap.get(preferenceName)).orElseGet(HashSet::new);
         map.remove(listener);
         if (map.isEmpty()) {
             listenerMap.remove(preferenceName);
         }
     }
 
-    public void removePreferenceListeners(String preferenceName) {
+    public synchronized void removePreferenceListeners(String preferenceName) {
         listenerMap.remove(preferenceName);
     }
 
-    void notifyPreferenceListeners(String preferenceName, String key, Object value) {
+    synchronized void notifyPreferenceListeners(String preferenceName, String key, Object value) {
         Optional.ofNullable(listenerMap.get(preferenceName))
-                .ifPresent(map -> map.values().stream()
-                        .forEach(listener -> listener.onPropertyChange(key, value)));
-    }
-
-    void notifyAllListeners(String key, Object value) {
-        listenerMap.values().stream()
-                .forEach(map -> map.values().stream()
+                .ifPresent(set -> set.stream()
                         .forEach(listener -> listener.onPropertyChange(key, value)));
     }
 

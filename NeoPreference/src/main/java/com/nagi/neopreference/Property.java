@@ -11,7 +11,7 @@ public abstract class Property<T> {
     private final String preferenceName;
     private final String key;
     private final SharedPreferences preferences;
-    private final Map<Listener<T>, Listener<T>> listenerMap = new HashMap<>();
+    private final Set<Listener<T>> listenerSet = Collections.synchronizedSet(new HashSet<>());
 
     Property(String key, String preferenceName, SharedPreferences preferences) {
         this.key = key;
@@ -19,28 +19,30 @@ public abstract class Property<T> {
         this.preferences = preferences;
     }
 
-    public synchronized final void addListener(Listener<T> listener) {
-        listenerMap.put(listener, listener);
+    public final void addListener(Listener<T> listener) {
+        listenerSet.add(listener);
     }
 
-    public synchronized final void addListener(LifecycleOwner owner, Listener<T> listener) {
-        listenerMap.put(listener, listener);
+    public final void addListener(LifecycleOwner owner, Listener<T> listener) {
+        listenerSet.add(listener);
         owner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override
             public void onDestroy(@NonNull LifecycleOwner owner) {
                 DefaultLifecycleObserver.super.onDestroy(owner);
-                listenerMap.remove(listener, listener);
+                listenerSet.remove(listener);
             }
         });
     }
 
-    public synchronized final void removeListener(Listener<T> listener) {
-        listenerMap.remove(listener);
+    public final void removeListener(Listener<T> listener) {
+        listenerSet.remove(listener);
     }
 
-    protected synchronized final void notifyAllListeners(T value) {
-        for (Listener<T> listener : listenerMap.values()) {
-            listener.onChanged(value);
+    protected final void notifyAllListeners(T value) {
+        synchronized (listenerSet){
+            for (Listener<T> listener : listenerSet) {
+                listener.onChanged(value);
+            }
         }
         ConfigManager.getInstance().notifyPreferenceListeners(getPreferenceName(), getKey(), value);
     }

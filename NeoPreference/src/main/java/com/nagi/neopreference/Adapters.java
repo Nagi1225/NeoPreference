@@ -14,13 +14,12 @@ class Adapters {
     private static final Map<Type, TypeAdapter> adapterMap = new HashMap<>();
 
     static {
-        registerAdapters(Arrays.asList(
-                new IntegerTypeAdapter(),
-                new BooleanTypeAdapter(),
-                new LongTypeAdapter(),
-                new FloatTypeAdapter(),
-                new StringTypeAdapter(),
-                new StringSetTypeAdapter()));
+        registerAdapter(new IntegerTypeAdapter());
+        registerAdapter(new BooleanTypeAdapter());
+        registerAdapter(new LongTypeAdapter());
+        registerAdapter(new FloatTypeAdapter());
+        registerAdapter(new StringTypeAdapter());
+        registerAdapter(new StringSetTypeAdapter());
     }
 
     private Adapters() {
@@ -28,27 +27,25 @@ class Adapters {
     }
 
     @SuppressWarnings("rawtypes")
-    static void registerAdapters(List<TypeAdapter> adapterList) {
-        for (TypeAdapter adapter : adapterList) {
-            Type type = adapter.getClass().getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
-                if (actualTypeArguments.length != 2) {
-                    throw new IllegalArgumentException(String.format("Adapter[%s] must have 2 type arguments, like TypeAdapter<Config.IntItem, Integer>",
-                            adapter.getClass().getCanonicalName()));
-                } else {
-                    Type annoType = actualTypeArguments[0];
-                    Type valueType = actualTypeArguments[1];
-                    if (annoType instanceof Class && Annotation.class.isAssignableFrom((Class<?>) annoType)) {
-                        adapterMap.put(valueType, adapter);
-                    } else {
-                        throw new IllegalArgumentException("Annotation Type Argument is not valid:" + annoType);
-                    }
-                }
-            } else {
-                throw new IllegalArgumentException(String.format("Adapter[%s] must contains type arguments, like TypeAdapter<Config.IntItem, Integer>",
+    static void registerAdapter(TypeAdapter adapter) {
+        Type type = adapter.getClass().getGenericSuperclass();
+        if (type instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+            if (actualTypeArguments.length != 2) {
+                throw new IllegalArgumentException(String.format("Adapter[%s] must have 2 type arguments, like TypeAdapter<Config.IntItem, Integer>",
                         adapter.getClass().getCanonicalName()));
+            } else {
+                Type annoType = actualTypeArguments[0];
+                Type valueType = actualTypeArguments[1];
+                if (annoType instanceof Class && Annotation.class.isAssignableFrom((Class<?>) annoType)) {
+                    adapterMap.put(valueType, adapter);
+                } else {
+                    throw new IllegalArgumentException("Annotation Type Argument is not valid:" + annoType);
+                }
             }
+        } else {
+            throw new IllegalArgumentException(String.format("Adapter[%s] must contains type arguments, like TypeAdapter<Config.IntItem, Integer>",
+                    adapter.getClass().getCanonicalName()));
         }
     }
 
