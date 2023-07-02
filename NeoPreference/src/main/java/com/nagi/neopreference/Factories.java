@@ -9,56 +9,56 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class Adapters {
+class Factories {
     @SuppressWarnings("rawtypes")
-    private static final Map<Type, TypeAdapter> adapterMap = new HashMap<>();
+    private static final Map<Type, PropertyFactory> factoryMap = new HashMap<>();
 
     static {
-        registerAdapter(new IntegerTypeAdapter());
-        registerAdapter(new BooleanTypeAdapter());
-        registerAdapter(new LongTypeAdapter());
-        registerAdapter(new FloatTypeAdapter());
-        registerAdapter(new StringTypeAdapter());
-        registerAdapter(new StringSetTypeAdapter());
+        registerAdapter(new IntegerPropertyFactory());
+        registerAdapter(new BooleanPropertyFactory());
+        registerAdapter(new LongPropertyFactory());
+        registerAdapter(new FloatPropertyFactory());
+        registerAdapter(new StringPropertyFactory());
+        registerAdapter(new StringSetPropertyFactory());
     }
 
-    private Adapters() {
+    private Factories() {
 
     }
 
     @SuppressWarnings("rawtypes")
-    static void registerAdapter(TypeAdapter adapter) {
-        Type type = adapter.getClass().getGenericSuperclass();
+    static void registerAdapter(PropertyFactory factory) {
+        Type type = factory.getClass().getGenericSuperclass();
         if (type instanceof ParameterizedType) {
             Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
             if (actualTypeArguments.length != 2) {
-                throw new IllegalArgumentException(String.format("Adapter[%s] must have 2 type arguments, like TypeAdapter<Config.IntItem, Integer>",
-                        adapter.getClass().getCanonicalName()));
+                throw new IllegalArgumentException(String.format("Factory[%s] must have 2 type arguments, like PropertyFactory<Config.IntItem, Integer>",
+                        factory.getClass().getCanonicalName()));
             } else {
                 Type annoType = actualTypeArguments[0];
                 Type valueType = actualTypeArguments[1];
                 if (annoType instanceof Class && Annotation.class.isAssignableFrom((Class<?>) annoType)) {
-                    adapterMap.put(valueType, adapter);
+                    factoryMap.put(valueType, factory);
                 } else {
                     throw new IllegalArgumentException("Annotation Type Argument is not valid:" + annoType);
                 }
             }
         } else {
-            throw new IllegalArgumentException(String.format("Adapter[%s] must contains type arguments, like TypeAdapter<Config.IntItem, Integer>",
-                    adapter.getClass().getCanonicalName()));
+            throw new IllegalArgumentException(String.format("Factory[%s] must contains type arguments, like PropertyFactory<Config.IntItem, Integer>",
+                    factory.getClass().getCanonicalName()));
         }
     }
 
     @SuppressWarnings("rawtypes")
-    static TypeAdapter getAdapterForType(Type type) {
-        return adapterMap.get(type);
+    static PropertyFactory getFactoryForType(Type type) {
+        return factoryMap.get(type);
     }
 
     private static String ensureKey(String key, String defaultKey) {
         return TextUtils.isEmpty(key) ? defaultKey : key;
     }
 
-    static class IntegerTypeAdapter extends TypeAdapter<Config.IntItem, Integer> {
+    static class IntegerPropertyFactory extends PropertyFactory<Config.IntItem, Integer> {
         @Override
         public Property<Integer> createProperty(String key, Config.IntItem annotation, String preferenceName, SharedPreferences preferences) {
             Set<Integer> valueEnumSet = Arrays.stream(annotation.valueOf()).boxed().collect(Collectors.toSet());
@@ -103,7 +103,7 @@ class Adapters {
         }
     }
 
-    static class BooleanTypeAdapter extends TypeAdapter<Config.BooleanItem, Boolean> {
+    static class BooleanPropertyFactory extends PropertyFactory<Config.BooleanItem, Boolean> {
         @Override
         public Property<Boolean> createProperty(String key, Config.BooleanItem annotation, String preferenceName, SharedPreferences preferences) {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
@@ -135,7 +135,7 @@ class Adapters {
         }
     }
 
-    static class LongTypeAdapter extends TypeAdapter<Config.LongItem, Long> {
+    static class LongPropertyFactory extends PropertyFactory<Config.LongItem, Long> {
 
         @Override
         public Property<Long> createProperty(String key, Config.LongItem annotation, String preferenceName, SharedPreferences preferences) {
@@ -182,7 +182,7 @@ class Adapters {
         }
     }
 
-    static class FloatTypeAdapter extends TypeAdapter<Config.FloatItem, Float> {
+    static class FloatPropertyFactory extends PropertyFactory<Config.FloatItem, Float> {
 
         @Override
         public Property<Float> createProperty(String key, Config.FloatItem annotation, String preferenceName, SharedPreferences preferences) {
@@ -231,7 +231,7 @@ class Adapters {
         }
     }
 
-    static class StringTypeAdapter extends TypeAdapter<Config.StringItem, String> {
+    static class StringPropertyFactory extends PropertyFactory<Config.StringItem, String> {
 
         @Override
         public Property<String> createProperty(String key, Config.StringItem annotation, String preferenceName, SharedPreferences preferences) {
@@ -277,7 +277,7 @@ class Adapters {
         }
     }
 
-    static class StringSetTypeAdapter extends TypeAdapter<Config.StringSetItem, Set<String>> {
+    static class StringSetPropertyFactory extends PropertyFactory<Config.StringSetItem, Set<String>> {
 
         @Override
         public Property<Set<String>> createProperty(String key, Config.StringSetItem annotation, String preferenceName, SharedPreferences preferences) {

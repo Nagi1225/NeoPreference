@@ -18,8 +18,8 @@ public class ConfigManager {
 
     private static final ConfigManager sInstance = new ConfigManager();
 
-    public static void registerAdapter(TypeAdapter<?, ?> adapter) {
-        Adapters.registerAdapter(adapter);
+    public static void registerFactory(PropertyFactory<?, ?> factory) {
+        Factories.registerAdapter(factory);
     }
 
     private ConfigManager() {

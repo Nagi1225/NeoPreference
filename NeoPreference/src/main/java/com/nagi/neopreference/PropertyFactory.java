@@ -11,7 +11,23 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PropertyFactory {
+public abstract class PropertyFactory<A extends Annotation, T> {
+
+    public abstract Property<T> createProperty(String key, A annotation, String preferenceName, SharedPreferences preferences);
+
+    final Class<? extends Annotation> getTypeAnnotationClass() {
+        Type genericSuperclass = getClass().getGenericSuperclass();
+        if (genericSuperclass instanceof ParameterizedType) {
+            Type[] types = ((ParameterizedType) genericSuperclass).getActualTypeArguments();
+            if (types.length == 2) {
+                return (Class<? extends Annotation>) types[0];
+            } else {
+                throw new IllegalStateException("ActualTypeArguments length is not 2");
+            }
+        } else {
+            throw new IllegalStateException("genericSuperclass is not ParameterizedType");
+        }
+    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     static Lazy<Property<?>> get(String preferenceName, SharedPreferences preferences, Method method) {
@@ -23,12 +39,12 @@ public class PropertyFactory {
                     Type valueType = types[0];
                     String defaultKey = method.getName();
                     checkAnnotation(method, valueType, method.getAnnotations());
-                    TypeAdapter adapter = Adapters.getAdapterForType(valueType);
-                    if (adapter == null) {
+                    PropertyFactory factory = Factories.getFactoryForType(valueType);
+                    if (factory == null) {
                         throw new RuntimeException("error returnType:" + valueType);
                     } else {
                         return Lazy.from(() -> new PropertyWrapper<Object>(
-                                        adapter.createProperty(defaultKey, extractAnnotation(method, adapter.getTypeAnnotationClass()), preferenceName, preferences)));
+                                        factory.createProperty(defaultKey, extractAnnotation(method, factory.getTypeAnnotationClass()), preferenceName, preferences)));
                     }
                 } else {
                     throw new IllegalStateException("type arguments length != 1");
