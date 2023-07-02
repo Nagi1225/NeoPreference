@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +38,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ConfigManager.getInstance().addListener(this, DemoConfig.NAME, (key, value) -> {
-            Log.i("SPECTRE", "MainActivity.onCreate preference content change => " + key + " - " + value);//TODO delete
+            Log.i(TAG, "MainActivity.onCreate preference content change => " + key + " - " + value);//TODO delete
         });
 
-        config.intProperty().addListener(this, newValue -> Log.i("SPECTRE", "int property updated:" + newValue + "\n"));
-        config.floatProperty().addListener(this, newValue -> Log.i("SPECTRE", "float property updated:" + newValue + "\n"));
-        config.longProperty().addListener(this, newValue -> Log.i("SPECTRE", "long property updated:" + newValue + "\n"));
-        config.boolProperty().addListener(this, newValue -> Log.i("SPECTRE", "bool property updated:" + newValue + "\n"));
-        config.stringProperty().addListener(this, newValue -> Log.i("SPECTRE", "string property updated:" + newValue + "\n"));
-        config.stringSetProperty().addListener(this, newValue -> Log.i("SPECTRE", "string set property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
+        config.intProperty().addListener(this, newValue -> Log.i(TAG, "int property updated:" + newValue + "\n"));
+        config.floatProperty().addListener(this, newValue -> Log.i(TAG, "float property updated:" + newValue + "\n"));
+        config.longProperty().addListener(this, newValue -> Log.i(TAG, "long property updated:" + newValue + "\n"));
+        config.boolProperty().addListener(this, newValue -> Log.i(TAG, "bool property updated:" + newValue + "\n"));
+        config.stringProperty().addListener(this, newValue -> Log.i(TAG, "string property updated:" + newValue + "\n"));
+        config.stringSetProperty().addListener(this, newValue -> Log.i(TAG, "string set property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
     }
 }
