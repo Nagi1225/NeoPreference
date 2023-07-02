@@ -45,7 +45,7 @@ public interface Property<T> {
         private final String key;
         private final SharedPreferences preferences;
 
-        BaseProperty(String key, String preferenceName, SharedPreferences preferences) {
+        protected BaseProperty(String key, String preferenceName, SharedPreferences preferences) {
             this.key = key;
             this.preferenceName = preferenceName;
             this.preferences = preferences;

@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    static {
+        ConfigManager.registerFactory(new JsonPropertyFactory());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ConfigManager.getInstance().addListener(this, DemoConfig.NAME, (key, value) -> {
-            Log.i(TAG, "MainActivity.onCreate preference content change => " + key + " - " + value);//TODO delete
+            Log.i(TAG, "MainActivity.onCreate preference content change => " + key + " - " + value);
         });
 
         config.intProperty().addListener(this, newValue -> Log.i(TAG, "int property updated:" + newValue + "\n"));
@@ -47,5 +51,14 @@ public class MainActivity extends AppCompatActivity {
         config.boolProperty().addListener(this, newValue -> Log.i(TAG, "bool property updated:" + newValue + "\n"));
         config.stringProperty().addListener(this, newValue -> Log.i(TAG, "string property updated:" + newValue + "\n"));
         config.stringSetProperty().addListener(this, newValue -> Log.i(TAG, "string set property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
+
+        config.userInfo().opt().ifPresentOrElse(userInfo -> {
+            Log.d(TAG, "current user: " + userInfo);
+            userInfo.setAge(userInfo.getAge() + 1);
+            config.userInfo().set(userInfo);
+        }, () -> {
+            Log.d(TAG, "no user config");
+            config.userInfo().set(new UserInfo("1", "Alice", 1));
+        });
     }
 }

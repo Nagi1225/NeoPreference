@@ -51,7 +51,27 @@ class Factories {
 
     @SuppressWarnings("rawtypes")
     static PropertyFactory getFactoryForType(Type type) {
-        return factoryMap.get(type);
+        return Optional.ofNullable(factoryMap.get(type))
+                .orElseGet(() -> {
+                    Class<?> clazz = extractClass(type);
+                    for (Type keyType : factoryMap.keySet()) {
+                        Class<?> keyClass = extractClass(keyType);
+                        if (keyClass.isAssignableFrom(clazz)) {
+                            return factoryMap.get(keyType);
+                        }
+                    }
+                    throw new IllegalStateException("can not found factory for type:" + type);
+                });
+    }
+
+    private static Class<?> extractClass(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            return extractClass(((ParameterizedType) type).getRawType());
+        } else {
+            throw new IllegalArgumentException("not support for type:" + type);
+        }
     }
 
     private static String ensureKey(String key, String defaultKey) {

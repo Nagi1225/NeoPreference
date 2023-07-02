@@ -28,4 +28,7 @@ public interface DemoConfig extends Config {
 
     @StringSetItem(key = "collection_media_set", valueOf = {"mp3", "mp4", "png", "jpg", "mkv"})
     Property<Set<String>> collectMediaSet();
+
+    @JsonData.JsonItem(key = "current_user_info")
+    Property<UserInfo> userInfo();
 }
