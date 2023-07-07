@@ -85,7 +85,7 @@ class Factories {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 public String getValueString() {
-                    return isEmpty() ? "empty int" : String.valueOf(get());
+                    return exists() ? String.valueOf(get()) : "empty int";
                 }
 
                 @Override
@@ -129,7 +129,7 @@ class Factories {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 public String getValueString() {
-                    return isEmpty() ? "empty boolean" : String.valueOf(get());
+                    return exists() ? String.valueOf(get()) : "empty boolean";
                 }
 
                 @Override
@@ -163,7 +163,7 @@ class Factories {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 public String getValueString() {
-                    return isEmpty() ? "empty long" : String.valueOf(get());
+                    return exists() ? String.valueOf(get()) : "empty long";
                 }
 
                 @Override
@@ -213,7 +213,7 @@ class Factories {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 public String getValueString() {
-                    return isEmpty() ? "empty float" : String.valueOf(get());
+                    return exists() ? String.valueOf(get()) : "empty float";
                 }
 
                 @Override
@@ -259,7 +259,7 @@ class Factories {
             return new Property.BaseProperty<>(ensureKey(annotation.key(), key), preferenceName, preferences) {
                 @Override
                 public String getValueString() {
-                    return isEmpty() ? "empty string" : String.valueOf(get());
+                    return exists() ? String.valueOf(get()) : "empty string";
                 }
 
                 @Override

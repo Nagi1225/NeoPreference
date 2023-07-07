@@ -95,7 +95,7 @@ public class ConfigManager {
         }
     }
 
-    public synchronized void removePreferenceListeners(String preferenceName) {
+    public synchronized void removeListeners(String preferenceName) {
         listenerMap.remove(preferenceName);
     }
 

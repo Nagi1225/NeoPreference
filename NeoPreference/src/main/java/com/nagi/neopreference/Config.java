@@ -96,7 +96,7 @@ public interface Config {
 
         float defaultValue() default 0;
 
-        float start() default -Float.MIN_VALUE;
+        float start() default -Float.MAX_VALUE;
 
         float to() default Float.MAX_VALUE;
 

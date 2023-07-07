@@ -9,7 +9,7 @@ import java.util.*;
 
 public interface Property<T> {
     default Optional<T> opt() {
-        return isPresent()
+        return exists()
                 ? Optional.ofNullable(get())
                 : Optional.empty();
     }
@@ -28,11 +28,7 @@ public interface Property<T> {
 
     String getPreferenceName();
 
-    boolean isPresent();
-
-    default boolean isEmpty() {
-        return !isPresent();
-    }
+    boolean exists();
 
     void addListener(Listener<T> listener);
 
@@ -81,7 +77,7 @@ public interface Property<T> {
         }
 
         @Override
-        public final boolean isPresent() {
+        public final boolean exists() {
             return preferences.contains(getKey());
         }
     }
@@ -136,8 +132,8 @@ final class PropertyWrapper<T> implements Property<T> {
     }
 
     @Override
-    public boolean isPresent() {
-        return impl.isPresent();
+    public boolean exists() {
+        return impl.exists();
     }
 
     @Override

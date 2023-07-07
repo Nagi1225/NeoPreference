@@ -43,8 +43,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.name().get(), "");
         assertEquals(config.name().get("empty"), "empty");
-        assertTrue(config.name().isEmpty());
-        assertFalse(config.name().isPresent());
+        assertFalse(config.name().exists());
         config.name().set("Alice");
         assertEquals(config.name().get(), "Alice");
         assertEquals(config.name().get("empty"), "Alice");
@@ -53,8 +52,7 @@ public class ExampleInstrumentedTest {
         config.nameWithAnno();
         assertEquals(config.nameWithAnno().get(), "");
         assertEquals(config.nameWithAnno().get("empty"), "empty");
-        assertTrue(config.nameWithAnno().isEmpty());
-        assertFalse(config.nameWithAnno().isPresent());
+        assertFalse(config.nameWithAnno().exists());
         config.nameWithAnno().set("Akane");
         assertEquals(config.nameWithAnno().get(), "Akane");
         assertEquals(config.nameWithAnno().get("empty"), "Akane");
@@ -63,8 +61,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.sexText().get(), "未知");
         assertEquals(config.sexText().get("empty"), "empty");
-        assertTrue(config.sexText().isEmpty());
-        assertFalse(config.sexText().isPresent());
+        assertFalse(config.sexText().exists());
         config.sexText().set("男");
         assertEquals(config.sexText().get(), "男");
         assertEquals(config.sexText().get("empty"), "男");
@@ -73,8 +70,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.age().get(), (Integer) 0);
         assertEquals(config.age().get(-1), (Integer) (-1));
-        assertTrue(config.age().isEmpty());
-        assertFalse(config.age().isPresent());
+        assertFalse(config.age().exists());
         config.age().set(2);
         assertEquals(config.age().get(), (Integer) 2);
         assertEquals(config.age().get(-1), (Integer) 2);
@@ -82,8 +78,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.ageWithLimit().get(), (Integer) 1);
         assertEquals(config.ageWithLimit().get(-1), (Integer) (-1));
-        assertTrue(config.ageWithLimit().isEmpty());
-        assertFalse(config.ageWithLimit().isPresent());
+        assertFalse(config.ageWithLimit().exists());
         config.ageWithLimit().set(2);
         assertEquals(config.ageWithLimit().get(), (Integer) 2);
         assertEquals(config.ageWithLimit().get(-1), (Integer) 2);
@@ -92,8 +87,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.sexNumber().get(), (Integer) 0);
         assertEquals(config.sexNumber().get(-1), (Integer) (-1));
-        assertTrue(config.sexNumber().isEmpty());
-        assertFalse(config.sexNumber().isPresent());
+        assertFalse(config.sexNumber().exists());
         config.sexNumber().set(2);
         assertEquals(config.sexNumber().get(), (Integer) 2);
         assertEquals(config.sexNumber().get(-1), (Integer) 2);
@@ -102,8 +96,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.lastUpdateTime().get(), (Long) 0L);
         assertEquals(config.lastUpdateTime().get(-1L), (Long) (-1L));
-        assertTrue(config.lastUpdateTime().isEmpty());
-        assertFalse(config.lastUpdateTime().isPresent());
+        assertFalse(config.lastUpdateTime().exists());
         config.lastUpdateTime().set(2L);
         assertEquals(config.lastUpdateTime().get(), (Long) 2L);
         assertEquals(config.lastUpdateTime().get(-1L), (Long) 2L);
@@ -112,8 +105,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.longLimited().get(), (Long) 1L);
         assertEquals(config.longLimited().get(-1L), (Long) (-1L));
-        assertTrue(config.longLimited().isEmpty());
-        assertFalse(config.longLimited().isPresent());
+        assertFalse(config.longLimited().exists());
         config.longLimited().set(2L);
         assertEquals(config.longLimited().get(), (Long) 2L);
         assertEquals(config.longLimited().get(-1L), (Long) 2L);
@@ -122,8 +114,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.height().get(), (Float) 0F);
         assertEquals(config.height().get(-1F), (Float) (-1F));
-        assertTrue(config.height().isEmpty());
-        assertFalse(config.height().isPresent());
+        assertFalse(config.height().exists());
         config.height().set(2F);
         assertEquals(config.height().get(), (Float) 2F);
         assertEquals(config.height().get(-1F), (Float) 2F);
@@ -131,8 +122,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.heightLimited().get(), (Float) 0F);
         assertEquals(config.heightLimited().get(-1F), (Float) (-1F));
-        assertTrue(config.heightLimited().isEmpty());
-        assertFalse(config.heightLimited().isPresent());
+        assertFalse(config.heightLimited().exists());
         config.heightLimited().set(2F);
         assertEquals(config.heightLimited().get(), (Float) 2F);
         assertEquals(config.heightLimited().get(-1F), (Float) 2F);
@@ -141,8 +131,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.floatLimited().get(), (Float) 0F);
         assertEquals(config.floatLimited().get(-1F), (Float) (-1F));
-        assertTrue(config.floatLimited().isEmpty());
-        assertFalse(config.floatLimited().isPresent());
+        assertFalse(config.floatLimited().exists());
         config.floatLimited().set(2F);
         assertEquals(config.floatLimited().get(), (Float) 2F);
         assertEquals(config.floatLimited().get(-1F), (Float) 2F);
@@ -151,8 +140,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.alive().get(), false);
         assertEquals(config.alive().get(true), true);
-        assertTrue(config.alive().isEmpty());
-        assertFalse(config.alive().isPresent());
+        assertFalse(config.alive().exists());
         config.alive().set(true);
         assertEquals(config.alive().get(), true);
         assertEquals(config.alive().get(false), true);
@@ -160,8 +148,7 @@ public class ExampleInstrumentedTest {
 
         assertEquals(config.aliveLimited().get(), true);
         assertEquals(config.aliveLimited().get(false), false);
-        assertTrue(config.aliveLimited().isEmpty());
-        assertFalse(config.aliveLimited().isPresent());
+        assertFalse(config.aliveLimited().exists());
         config.aliveLimited().set(true);
         assertEquals(config.aliveLimited().get(), true);
         assertEquals(config.aliveLimited().get(false), true);
@@ -169,8 +156,7 @@ public class ExampleInstrumentedTest {
 
         assertArrayEquals(config.friends().get().toArray(), new String[0]);
         assertEquals(config.friends().get(Collections.emptySet()), Collections.emptySet());
-        assertTrue(config.friends().isEmpty());
-        assertFalse(config.friends().isPresent());
+        assertFalse(config.friends().exists());
         config.friends().set(new HashSet<>(Arrays.asList("A", "B", "C")));
         assertArrayEquals(config.friends().get().toArray(), new String[]{"A", "B", "C"});
         assertArrayEquals(config.friends().get(Collections.emptySet()).toArray(), new String[]{"A", "B", "C"});
@@ -178,8 +164,7 @@ public class ExampleInstrumentedTest {
 
         assertArrayEquals(config.useComputerOsSet().get().toArray(), new String[0]);
         assertEquals(config.useComputerOsSet().get(Collections.emptySet()), Collections.emptySet());
-        assertTrue(config.useComputerOsSet().isEmpty());
-        assertFalse(config.useComputerOsSet().isPresent());
+        assertFalse(config.useComputerOsSet().exists());
         config.useComputerOsSet().set(new HashSet<>(Arrays.asList("linux", "windows")));
         assertArrayEquals(config.useComputerOsSet().get().stream().sorted().toArray(), new String[]{"linux", "windows"});
         assertArrayEquals(config.useComputerOsSet().get(Collections.emptySet()).stream().sorted().toArray(), new String[]{"linux", "windows"});
