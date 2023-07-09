@@ -22,7 +22,7 @@ allprojects {
 
 ```groovy
 dependencies {
-        implementation 'com.github.Nagi1225:NeoPreference:a.b.c'
+        implementation 'com.github.Nagi1225:NeoPreference:0.1.0' //以实际版本为准
 }
 ```
 
@@ -194,7 +194,7 @@ public interface JsonData {
 }
 ```
 
-* 第二步：创建对应的`PropertyFactory`：
+* 第二步：创建对应的`PropertyFactory`并在使用前注册：
 
 
 ```java
@@ -255,6 +255,12 @@ public class JsonPropertyFactory extends PropertyFactory<JsonData.JsonItem, Json
 }
 ```
 
+在使用前注册到`ConfigManager`：
+
+```java
+ConfigManager.registerFactory(new JsonPropertyFactory());
+```
+
 * 第三步：让对应数据类实现前面定义的接口：
 
 ```java
@@ -286,13 +292,15 @@ public interface DemoConfig extends Config {
     @JsonData.JsonItem(key = "current_user_info")
     Property<UserInfo> userInfo();
 }
+```
 
+```java
 /* sample usage */
 DemoConfig config = ConfigManager.getInstance().getConfig(DemoConfig.class);
 config.userInfo().opt().ifPresentOrElse(userInfo -> {
     userInfo.setAge(userInfo.getAge() + 1);
     config.userInfo().set(userInfo);
-}, () -> {
+    }, () -> {
     config.userInfo().set(new UserInfo("1", "Alice", 1));
 });
 ```
