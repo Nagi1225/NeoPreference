@@ -47,7 +47,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.nagi.neopreference'//你要发布的库的组ID  建议使用包名
                 artifactId = 'NeoPerference'//你要发布的库的名字
-                version = '0.1.0'//库的版本 可以在外部定义一个变量，保持整个配置文件中的版本一致性
+                version = '0.1.1'//库的版本 可以在外部定义一个变量，保持整个配置文件中的版本一致性
             }
         }
     }

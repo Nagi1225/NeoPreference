@@ -9,22 +9,20 @@ import java.util.Set;
 public interface DemoConfig extends Config {
     String NAME = "demo_config";
 
+    @IntItem(key = "app_open_count", description = "应用打开次数")
     Property<Integer> intProperty();
 
-    @StringItem(supportEmpty = true)
+    @StringItem(key = "user_id", description = "用户id")
     Property<String> stringProperty();
 
-    @FloatItem(key = "height")
+    @FloatItem(key = "height", description = "xx高度")
     Property<Float> floatProperty();
 
-    @LongItem(key = "last_save_time")
+    @LongItem(key = "last_save_time", description = "上一次保存时间")
     Property<Long> longProperty();
 
-    @BooleanItem
+    @BooleanItem(key = "is_first_open", defaultValue = true, description = "应用是否第一次启动")
     Property<Boolean> boolProperty();
-
-    @StringSetItem()
-    Property<Set<String>> stringSetProperty();
 
     @StringSetItem(key = "collection_media_set", valueOf = {"mp3", "mp4", "png", "jpg", "mkv"})
     Property<Set<String>> collectMediaSet();

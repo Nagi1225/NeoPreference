@@ -60,5 +60,10 @@ public class JsonPropertyFactory extends PropertyFactory<JsonData.JsonItem, Json
             String className = value.getClass().getCanonicalName();
             getPreferences().edit().putString(getKey(), className + ":" + gson.toJson(value)).apply();
         }
+
+        @Override
+        public Class<?> getValueClass() {
+            return JsonData.class;
+        }
     }
 }

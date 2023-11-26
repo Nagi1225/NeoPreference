@@ -28,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
         binding.etLong.setText(String.valueOf(config.longProperty().get()));
         binding.switchBool.setChecked(config.boolProperty().get());
         binding.etString.setText(String.valueOf(config.stringProperty().get()));
-        binding.etStringSet.setText(config.stringSetProperty().get().stream()
-                .reduce((s1, s2) -> s1 + " " + s2).orElse(""));
 
         binding.btnSave.setOnClickListener(v -> {
             config.intProperty().set(Integer.parseInt(String.valueOf(binding.etInt.getText())));
@@ -37,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
             config.longProperty().set(Long.parseLong(String.valueOf(binding.etLong.getText())));
             config.stringProperty().set(String.valueOf(binding.etString.getText()));
             config.boolProperty().set(binding.switchBool.isChecked());
-            config.stringSetProperty().set(Arrays.stream(String.valueOf(binding.etStringSet.getText())
-                    .split(" ")).collect(Collectors.toSet()));
+        });
+
+        binding.btnOpenAutoConfigPage.setOnClickListener(v -> {
+            AutoConfigActivity.start(this, DemoConfig.class);
         });
 
         ConfigManager.getInstance().addListener(this, DemoConfig.NAME, (key, value) -> {
@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         config.longProperty().addListener(this, newValue -> Log.i(TAG, "long property updated:" + newValue + "\n"));
         config.boolProperty().addListener(this, newValue -> Log.i(TAG, "bool property updated:" + newValue + "\n"));
         config.stringProperty().addListener(this, newValue -> Log.i(TAG, "string property updated:" + newValue + "\n"));
-        config.stringSetProperty().addListener(this, newValue -> Log.i(TAG, "string set property updated:" + newValue.stream().reduce((s1, s2) -> s1 + ", " + s2) + "\n"));
 
         config.userInfo().opt().ifPresentOrElse(userInfo -> {
             Log.d(TAG, "current user: " + userInfo);

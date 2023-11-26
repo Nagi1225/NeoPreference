@@ -36,6 +36,10 @@ public interface Property<T> {
 
     void removeListener(Listener<T> listener);
 
+    default Class<?> getValueClass() {
+        return Object.class;
+    }
+
     abstract class BaseProperty<T> implements Property<T> {
         private final String preferenceName;
         private final String key;
@@ -156,6 +160,11 @@ final class PropertyWrapper<T> implements Property<T> {
     @Override
     public void removeListener(Listener<T> listener) {
         listenerSet.remove(listener);
+    }
+
+    @Override
+    public Class<?> getValueClass() {
+        return impl.getValueClass();
     }
 
     private synchronized void notifyAllListeners(T value) {

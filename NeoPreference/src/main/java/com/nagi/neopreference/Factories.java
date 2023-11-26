@@ -119,6 +119,11 @@ class Factories {
                         }
                     }
                 }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return Integer.class;
+                }
             };
         }
     }
@@ -150,6 +155,11 @@ class Factories {
                 @Override
                 public void set(Boolean value) {
                     getPreferences().edit().putBoolean(getKey(), value).apply();
+                }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return Boolean.class;
                 }
             };
         }
@@ -197,6 +207,11 @@ class Factories {
                         }
                     }
 
+                }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return Long.class;
                 }
             };
         }
@@ -247,6 +262,11 @@ class Factories {
                         }
                     }
                 }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return Float.class;
+                }
             };
         }
     }
@@ -293,6 +313,11 @@ class Factories {
                         }
                     }
                 }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return String.class;
+                }
             };
         }
     }
@@ -335,6 +360,11 @@ class Factories {
                                             .orElseThrow(() -> new IllegalArgumentException("string set contains invalid element:" +
                                                     value.stream().reduce((s, s2) -> s + ", " + s2).orElse(""))))
                             .apply();
+                }
+
+                @Override
+                public Class<?> getValueClass() {
+                    return Set.class;
                 }
             };
         }

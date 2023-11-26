@@ -137,5 +137,12 @@
             android:layout_marginHorizontal="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btn_open_auto_config_page"
+            android:text="open auto config page"
+            android:layout_marginHorizontal="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </layout>
